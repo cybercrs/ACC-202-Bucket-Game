@@ -4,8 +4,6 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Accounting Bucket List", layout="wide")
 st.title("Accounting Bucket List")
 
-# The following string contains the complete HTML, CSS, and JavaScript for the game.
-# It uses the HTML5 Drag and Drop API.
 custom_game_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -13,41 +11,76 @@ custom_game_html = """
 <meta charset="UTF-8">
 <style>
     body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-    #game-board { display: flex; justify-content: space-around; width: 100%; margin-bottom: 30px; }
     
-    /* Bucket Styling */
+    #game-board { 
+        display: grid; 
+        grid-template-columns: repeat(6, 1fr); 
+        gap: 10px; 
+        width: 100%; 
+        margin-bottom: 30px; 
+    }
+    
+    .category-header {
+        grid-column: span 6;
+        background-color: #eee;
+        padding: 5px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 10px;
+    }
+    
     .bucket {
-        width: 150px;
-        height: 150px;
-        border: 3px dashed #ccc;
-        border-radius: 10px;
+        border: 2px dashed #ccc;
+        border-radius: 5px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         background-color: #f9f9f9;
         transition: background-color 0.3s;
+        min-height: 100px;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
     }
     .bucket.drag-over { background-color: #e0f7fa; border-color: #00bcd4; }
     
-    /* Card Pool Styling */
-    #card-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 80%; border: 2px solid #ddd; padding: 20px; border-radius: 10px; min-height: 100px;}
+    #card-pool { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 10px; 
+        justify-content: center; 
+        width: 95%; 
+        border: 2px solid #ddd; 
+        padding: 20px; 
+        border-radius: 10px; 
+        min-height: 150px;
+        background-color: #fafafa;
+    }
     
-    /* Individual Card Styling */
     .card {
-        padding: 15px;
+        padding: 8px;
         background-color: #fff;
-        border: 2px solid #333;
-        border-radius: 5px;
+        border: 1px solid #333;
+        border-radius: 3px;
         cursor: grab;
-        width: 200px;
+        width: 180px;
+        font-size: 11px;
         text-align: center;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         transition: transform 0.2s;
+        margin-bottom: 5px;
     }
     .card:active { cursor: grabbing; }
     
-    /* Animations */
+    .bucket .card {
+        width: 90%;
+        font-size: 10px;
+        padding: 4px;
+        cursor: default;
+    }
+
     @keyframes shake {
         0% { transform: translate(1px, 1px) rotate(0deg); }
         10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -70,23 +103,78 @@ custom_game_html = """
 
 <div id="score-board">Score: <span id="score">0</span></div>
 
-<!-- Drop Zones (Buckets) -->
-<!-- To use custom images, add an <img> tag inside these divs or set CSS background-image -->
 <div id="game-board">
-    <div class="bucket" data-type="Assets">Assets</div>
-    <div class="bucket" data-type="Liabilities">Liabilities</div>
-    <div class="bucket" data-type="Equity">Equity</div>
-    <div class="bucket" data-type="Revenue">Revenue</div>
-    <div class="bucket" data-type="Expenses">Expenses</div>
+    <div class="category-header">ASSETS</div>
+    <div class="bucket" data-type="CASH Account">CASH Account</div>
+    <div class="bucket" data-type="Accounts Receivable">Accounts Receivable</div>
+    <div class="bucket" data-type="Inventory">Inventory</div>
+    <div class="bucket" data-type="Supplies">Supplies</div>
+    <div class="bucket" data-type="Prepaid">Prepaid</div>
+    <div class="bucket" data-type="Stock Investments">Stock Investments</div>
+    <div class="bucket" data-type="Land Investments">Land Investments</div>
+    <div class="bucket" data-type="Equipment">Equipment</div>
+    <div class="bucket" data-type="Land & Buildings">Land & Buildings</div>
+    <div class="bucket" data-type="Intangible Assets">Intangible Assets</div>
+
+    <div class="category-header">LIABILITIES</div>
+    <div class="bucket" data-type="Accounts Payable">Accounts Payable</div>
+    <div class="bucket" data-type="Wages Payable">Wages Payable</div>
+    <div class="bucket" data-type="Unearned Revenue">Unearned Revenue</div>
+    <div class="bucket" data-type="Notes Payable due > 12 mos.">Notes Payable due > 12 mos.</div>
+    <div class="bucket" data-type="Mortgage Payable">Mortgage Payable</div>
+    <div class="bucket" data-type="Bonds Payable">Bonds Payable</div>
+
+    <div class="category-header">STOCKHOLDER'S EQUITY</div>
+    <div class="bucket" data-type="Retained Earnings">Retained Earnings</div>
+    <div class="bucket" data-type="Common Stock">Common Stock</div>
+
+    <div class="category-header">REVENUE</div>
+    <div class="bucket" data-type="Service Revenue">Service Revenue</div>
+    <div class="bucket" data-type="Sales Revenue">Sales Revenue</div>
+    <div class="bucket" data-type="Interest Income">Interest Income</div>
+
+    <div class="category-header">EXPENSES</div>
+    <div class="bucket" data-type="Cost of Goods Sold">Cost of Goods Sold</div>
+    <div class="bucket" data-type="Supplies Expense">Supplies Expense</div>
+    <div class="bucket" data-type="Rent Expense">Rent Expense</div>
+    <div class="bucket" data-type="Salaries & Wages Expense">Salaries & Wages Expense</div>
+    <div class="bucket" data-type="Advertising Expense">Advertising Expense</div>
+    <div class="bucket" data-type="Insurance Expense">Insurance Expense</div>
+    <div class="bucket" data-type="Interest Expense">Interest Expense</div>
+    <div class="bucket" data-type="Income Tax Expense">Income Tax Expense</div>
+
+    <div class="category-header">NET INCOME (LOSS)</div>
+    <div class="bucket" data-type="NET INCOME (LOSS)">NET INCOME (LOSS)</div>
 </div>
 
-<!-- Draggable Items (Cards) -->
 <div id="card-pool">
-    <div class="card" draggable="true" data-target="Assets" id="card1">Cash, inventory, and equipment</div>
-    <div class="card" draggable="true" data-target="Liabilities" id="card2">Amounts owed to suppliers</div>
-    <div class="card" draggable="true" data-target="Equity" id="card3">Owner's claim to resources</div>
-    <div class="card" draggable="true" data-target="Revenue" id="card4">Amounts earned from selling</div>
-    <div class="card" draggable="true" data-target="Expenses" id="card5">Costs incurred to generate revenue</div>
+    <div class="card" draggable="true" data-target="CASH Account">Currency on hand, coin, and balance in bank checking & savings accounts (money owned)</div>
+    <div class="card" draggable="true" data-target="Sales Revenue">Amounts earned by a company from selling physical products (goods) to customers</div>
+    <div class="card" draggable="true" data-target="Accounts Payable">Amounts owed to vendors (suppliers) for purchases made on account & not yet paid</div>
+    <div class="card" draggable="true" data-target="Service Revenue">Amounts earned by a company from selling & performing services for customers</div>
+    <div class="card" draggable="true" data-target="Equipment">Machinery, computers, tools, & vehicles owned by a company & used in operations</div>
+    <div class="card" draggable="true" data-target="Retained Earnings">Cumulative sum of past profits earned over time, not distributed (paid) as dividends to shareholders</div>
+    <div class="card" draggable="true" data-target="Inventory">Products (goods) a company owns and is being held for the purpose of resale to customers</div>
+    <div class="card" draggable="true" data-target="Accounts Receivable">Amounts customers owe the company for products or services sold on credit (Due from customers)</div>
+    <div class="card" draggable="true" data-target="Utilities Expense">Cost incurred for use of electricity, Internet, water & sewage necessary to operate the business</div>
+    <div class="card" draggable="true" data-target="Land & Buildings">Land & physical stores used in a retailer's operations</div>
+    <div class="card" draggable="true" data-target="Intangible Assets">Patents, Trademarks, & Copyrights</div>
+    <div class="card" draggable="true" data-target="Land Investments">Land owned but not used in operations; being held for future use or capital appreciation, e.g., will build a store in 3 yrs.</div>
+    <div class="card" draggable="true" data-target="Unearned Revenue">Amounts received in advance from customers before goods or services have been delivered or performed</div>
+    <div class="card" draggable="true" data-target="Cost of Goods Sold">Cost of inventory that was sold to customers; cost that was paid to suppliers for items sold</div>
+    <div class="card" draggable="true" data-target="Interest Expense">Cost incurred for borrowing money from creditors arising from loans, mortgages, bonds.</div>
+    <div class="card" draggable="true" data-target="Common Stock">Total amount paid-in (invested) in the corp. by stockholders (investors) in exchange for shares of ownership</div>
+    <div class="card" draggable="true" data-target="Supplies">Goods owned & on-hand for future that will be used/consumed in operations (not for resale)</div>
+    <div class="card" draggable="true" data-target="Supplies Expense">Office supplies & cleaning supplies that have been consumed/used in operations</div>
+    <div class="card" draggable="true" data-target="NET INCOME (LOSS)">Total Revenue less Total Expenses for an accounting period</div>
+    <div class="card" draggable="true" data-target="Stock Investments">Amount a company invests in another corporation by buying their stock with plans to hold it for the long-term</div>
+    <div class="card" draggable="true" data-target="Cost of Goods Sold">Cost of products sold; EX: cost Walmart incurred to buy the sold merchandise from suppliers</div>
+    <div class="card" draggable="true" data-target="Mortgage Payable">Amount due on a 20-year mortgage to finance purchase of a building</div>
+    <div class="card" draggable="true" data-target="Advertising Expense">Cost incurred for services used to design marketing materials & promote the business and its products.</div>
+    <div class="card" draggable="true" data-target="Prepaid">Paid rent to landlord two months in advance for future occupancy, e.g., effective next month</div>
+    <div class="card" draggable="true" data-target="Wages Payable">Salary & wages owed to employees for work performed, but company has not yet paid</div>
+    <div class="card" draggable="true" data-target="Salaries & Wages Expense">Cost of labor performed by employees during a period (cost of labor services used by the company)</div>
+    <div class="card" draggable="true" data-target="Notes Payable due > 12 mos.">Amount due to a creditor (bank) after 12 months evidenced by a written, signed promissory note.</div>
 </div>
 
 <audio id="snd-correct" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
@@ -145,7 +233,6 @@ custom_game_html = """
         const bucketType = this.getAttribute('data-type');
 
         if (expectedTarget === bucketType) {
-            // Correct Match
             this.appendChild(draggedItem);
             draggedItem.setAttribute('draggable', 'false');
             draggedItem.style.cursor = 'default';
@@ -154,13 +241,11 @@ custom_game_html = """
             sndCorrect.currentTime = 0;
             sndCorrect.play();
         } else {
-            // Incorrect Match
             score -= 5;
             scoreDisplay.innerText = score;
             sndIncorrect.currentTime = 0;
             sndIncorrect.play();
             
-            // Trigger shake animation
             draggedItem.classList.add('shake-animation');
             setTimeout(() => {
                 draggedItem.classList.remove('shake-animation');
@@ -172,5 +257,4 @@ custom_game_html = """
 </html>
 """
 
-# Render the custom HTML component in Streamlit
-components.html(custom_game_html, height=700, scrolling=False)
+components.html(custom_game_html, height=1800, scrolling=True)
