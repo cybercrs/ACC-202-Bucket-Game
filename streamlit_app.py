@@ -3,7 +3,6 @@ import streamlit.components.v1 as components
 import random
 
 st.set_page_config(page_title="Accounting Bucket List", layout="wide")
-st.title("Accounting Bucket List")
 
 # Card data to be randomized on each load
 card_data = [
@@ -61,51 +60,81 @@ custom_game_html = f"""
     #main-container {{
         height: 100vh;
         overflow-y: auto;
-        padding: 10px;
         box-sizing: border-box;
+        background-color: #f4f4f9;
+    }}
+
+    /* Persistent Header */
+    #header-container {{
+        position: sticky;
+        top: 0;
+        background: #ffffff;
+        z-index: 1000;
+        padding: 15px 30px;
+        border-bottom: 2px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 6px -6px #222;
+    }}
+
+    #header-title {{
+        font-size: 32px;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+        flex-grow: 1;
+        color: #333;
     }}
 
     #score-board {{ 
         font-size: 24px; 
         font-weight: bold; 
-        margin-bottom: 20px; 
-        text-align: center;
+        margin: 0; 
+        color: #e63946;
+        min-width: 120px;
+        text-align: right;
     }}
-
+    
+    /* Layout */
     .layout-container {{
         display: flex;
         flex-direction: row;
         gap: 20px;
         align-items: flex-start;
         width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
     }}
     
     #game-board {{ 
         flex: 2;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
     }}
     
     .section {{
         border: 2px solid #aaa;
         border-radius: 8px;
-        padding: 10px;
+        padding: 15px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
     }}
     
     .section-header {{
         font-weight: bold;
         text-align: center;
-        margin-bottom: 10px;
-        font-size: 16px;
+        margin-bottom: 15px;
+        font-size: 18px;
         text-transform: uppercase;
         letter-spacing: 1px;
+        color: #222;
     }}
     
     .bucket-grid {{
         display: grid; 
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-        gap: 10px; 
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+        gap: 15px; 
     }}
 
     /* Color Coding */
@@ -116,23 +145,39 @@ custom_game_html = f"""
     .expenses {{ background-color: #e8f5e9; border-color: #a5d6a7; }}
     .net-income {{ background-color: #fffde7; border-color: #fff59d; }}
     
+    /* Sand Pail Bucket Styling */
     .bucket {{
-        border: 2px dashed #777;
-        border-radius: 5px;
+        border: 2px dashed #999;
+        border-radius: 8px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        background-color: rgba(255, 255, 255, 0.6);
-        transition: background-color 0.3s;
-        min-height: 110px;
+        background-color: rgba(255, 255, 255, 0.7);
+        
+        /* Embedded Sand Pail SVG */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 25 40 C 25 10, 75 10, 75 40' fill='none' stroke='%23555' stroke-width='4'/%3E%3Cpolygon points='28,40 72,40 60,90 40,90' fill='%23f4a261' stroke='%23333' stroke-width='3'/%3E%3Crect x='22' y='35' width='56' height='10' rx='3' fill='%23e76f51' stroke='%23333' stroke-width='3'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center 15px;
+        background-size: 65px;
+        
+        transition: background-color 0.3s, transform 0.2s, border-color 0.2s;
+        min-height: 140px;
         padding: 10px;
-        font-size: 12px;
+        padding-top: 90px; /* Pushes text below the pail graphic */
+        font-size: 13px;
         font-weight: bold;
         text-align: center;
+        color: #333;
     }}
-    .bucket.drag-over {{ background-color: rgba(255, 255, 255, 1); border-color: #000; border-style: solid; }}
+    .bucket.drag-over {{ 
+        background-color: rgba(255, 255, 255, 1); 
+        border-color: #e63946; 
+        border-style: solid; 
+        transform: scale(1.05); 
+    }}
     
+    /* Card Pool Styling */
     #card-pool {{ 
         flex: 1;
         display: flex; 
@@ -142,36 +187,44 @@ custom_game_html = f"""
         border: 2px solid #ddd; 
         padding: 15px; 
         border-radius: 10px; 
-        background-color: #fafafa;
+        background-color: #ffffff;
         position: sticky;
-        top: 0;
-        max-height: 90vh;
+        top: 90px; /* Offset for the sticky header */
+        max-height: calc(100vh - 120px);
         overflow-y: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }}
     
     .card {{
-        padding: 8px;
+        padding: 10px;
         background-color: #fff;
-        border: 1px solid #333;
-        border-radius: 3px;
+        border: 1px solid #444;
+        border-radius: 5px;
         cursor: grab;
         width: 100%;
-        max-width: 200px;
-        font-size: 11px;
+        max-width: 220px;
+        font-size: 12px;
         text-align: center;
-        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
+        box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+        transition: transform 0.1s, box-shadow 0.1s;
     }}
-    .card:active {{ cursor: grabbing; }}
+    .card:active {{ 
+        cursor: grabbing; 
+        box-shadow: 4px 4px 8px rgba(0,0,0,0.2);
+    }}
     
+    /* Dropped Card Styling */
     .bucket .card {{
-        width: 90%;
+        width: 95%;
         font-size: 10px;
-        padding: 4px;
+        padding: 6px;
         cursor: default;
         margin-top: 5px;
+        box-shadow: none;
+        border-color: #999;
     }}
 
+    /* Animations */
     @keyframes shake {{
         0% {{ transform: translate(1px, 1px) rotate(0deg); }}
         10% {{ transform: translate(-1px, -2px) rotate(-1deg); }}
@@ -191,7 +244,12 @@ custom_game_html = f"""
 <body>
 
 <div id="main-container">
-    <div id="score-board">Score: <span id="score">0</span></div>
+    
+    <div id="header-container">
+        <div style="width: 120px;"></div> <!-- Spacer to keep title perfectly centered -->
+        <h1 id="header-title">Accounting Bucket List</h1>
+        <div id="score-board">Score: <span id="score">0</span></div>
+    </div>
 
     <div class="layout-container">
         <div id="game-board">
@@ -310,10 +368,12 @@ custom_game_html = f"""
     // Auto-scroll logic when dragging near top or bottom of the container
     document.addEventListener('drag', function(e) {{
         if (e.clientY === 0) return; // Prevent jump to top on drop
+        
+        const headerOffset = 80; // Account for the sticky header
         const buffer = 80;
         const speed = 15;
         
-        if (e.clientY < buffer) {{
+        if (e.clientY < (headerOffset + buffer)) {{
             container.scrollBy(0, -speed);
         }} else if (window.innerHeight - e.clientY < buffer) {{
             container.scrollBy(0, speed);
@@ -364,5 +424,5 @@ custom_game_html = f"""
 </html>
 """
 
-# Render the component, configuring height to fit window viewport
-components.html(custom_game_html, height=800, scrolling=False)
+# Render the component, expanding height slightly to fit window layout
+components.html(custom_game_html, height=850, scrolling=False)
