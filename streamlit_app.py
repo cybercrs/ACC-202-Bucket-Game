@@ -108,7 +108,7 @@ custom_game_html = f"""
     }}
     
     #game-board {{ 
-        flex: 1.5; /* Takes up roughly 60% of the screen */
+        flex: 1.5; 
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -134,7 +134,7 @@ custom_game_html = f"""
     .bucket-grid {{
         display: grid; 
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-        gap: 15px; 
+        gap: 25px 15px; /* Increased vertical gap for handle clearance */
     }}
 
     /* Color Coding - Applied to section backgrounds and inherited by buckets */
@@ -145,49 +145,81 @@ custom_game_html = f"""
     .expenses {{ background-color: #e8f5e9; border-color: #a5d6a7; }}
     .net-income {{ background-color: #fffde7; border-color: #fff59d; }}
     
-    /* Sand Pail Bucket Styling via CSS Shapes */
+    /* Sand Pail Bucket Styling */
     .bucket {{
-        background-color: inherit; /* Matches the section color */
+        background-color: inherit; 
         border: 3px solid rgba(0,0,0,0.2);
-        border-top: 14px solid rgba(0,0,0,0.4); /* Pail rim */
-        border-bottom-left-radius: 35px 20px;
-        border-bottom-right-radius: 35px 20px;
+        border-top: none;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        transition: transform 0.2s, border-color 0.2s, filter 0.2s;
+        transition: transform 0.2s, filter 0.2s;
         min-height: 140px;
-        padding: 10px;
+        padding: 25px 10px 10px 10px;
         font-size: 13px;
         font-weight: bold;
         text-align: center;
         color: #111;
         box-shadow: inset 0 -15px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.1);
         position: relative;
+        margin-top: 25px; /* Offset to accommodate the handle */
+    }}
+
+    /* Pail Rim */
+    .bucket::after {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -5%;
+        width: 110%;
+        height: 15px;
+        background-color: inherit;
+        border: 3px solid rgba(0,0,0,0.2);
+        border-radius: 5px;
+        box-shadow: 0 3px 3px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    }}
+    
+    /* Pail Handle */
+    .bucket::before {{
+        content: '';
+        position: absolute;
+        top: -25px;
+        left: 10%;
+        width: 80%;
+        height: 35px;
+        border: 4px solid #777;
+        border-bottom: none;
+        border-radius: 50px 50px 0 0;
+        box-sizing: border-box;
     }}
     
     .bucket.drag-over {{ 
-        border-color: #e63946; 
-        border-style: solid; 
         transform: scale(1.05);
         filter: brightness(1.05);
+    }}
+
+    .bucket.drag-over::after, .bucket.drag-over::before {{
+        border-color: #e63946;
     }}
     
     /* Card Pool Styling */
     #card-pool {{ 
-        flex: 1; /* Takes up roughly 40% of the screen */
+        flex: 1; 
         min-width: 320px;
         display: flex; 
         flex-wrap: wrap; 
-        gap: 10px; 
+        gap: 15px; 
         justify-content: center; 
         border: 2px solid #ddd; 
         padding: 15px; 
         border-radius: 10px; 
         background-color: #ffffff;
         position: sticky;
-        top: 90px; /* Offset for the sticky header */
+        top: 90px;
         max-height: calc(100vh - 120px);
         overflow-y: auto;
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
@@ -196,19 +228,20 @@ custom_game_html = f"""
     /* Grains of Sand Card Styling */
     .card {{
         padding: 12px;
-        background: radial-gradient(circle at 30% 30%, #fff8e1, #e2c285);
-        border: 1px solid #c9a65f;
-        /* Asymmetric border-radius to create an organic grain/pebble shape */
-        border-radius: 30% 70% 60% 40% / 40% 50% 60% 50%;
+        background-color: #e2c285;
+        /* SVG Noise Filter for Sand Texture */
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+        border: none;
+        border-radius: 40% 60% 55% 45% / 50% 45% 60% 40%;
         cursor: grab;
-        width: 45%; /* Ensures two fit side-by-side easily */
+        width: 45%; 
         max-width: 170px;
         min-height: 80px;
         font-size: 11px;
         text-align: center;
-        color: #3e2723;
-        font-weight: 600;
-        box-shadow: 3px 3px 6px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(0,0,0,0.1);
+        color: #2b1810;
+        font-weight: 700;
+        box-shadow: 2px 3px 5px rgba(0,0,0,0.15), inset -2px -3px 4px rgba(0,0,0,0.1), inset 2px 2px 4px rgba(255,255,255,0.4);
         transition: transform 0.1s, box-shadow 0.1s;
         display: flex;
         align-items: center;
@@ -217,7 +250,7 @@ custom_game_html = f"""
     
     .card:active {{ 
         cursor: grabbing; 
-        box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+        box-shadow: 4px 5px 8px rgba(0,0,0,0.25);
     }}
     
     /* Dropped Card Styling - Normalizes shape slightly to fit in the bucket */
@@ -227,9 +260,11 @@ custom_game_html = f"""
         font-size: 10px;
         padding: 6px;
         cursor: default;
-        margin-top: 5px;
+        margin-top: 10px;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-        border-radius: 15px; /* Softer, more uniform shape inside the bucket */
+        border-radius: 10px;
+        background-image: none; 
+        background-color: #f5deb3;
     }}
 
     /* Animations */
@@ -254,7 +289,7 @@ custom_game_html = f"""
 <div id="main-container">
     
     <div id="header-container">
-        <div style="width: 120px;"></div> <!-- Spacer to keep title perfectly centered -->
+        <div style="width: 120px;"></div>
         <h1 id="header-title">Accounting Bucket List</h1>
         <div id="score-board">Score: <span id="score">0</span></div>
     </div>
@@ -377,7 +412,7 @@ custom_game_html = f"""
     document.addEventListener('drag', function(e) {{
         if (e.clientY === 0) return; // Prevent jump to top on drop
         
-        const headerOffset = 80; // Account for the sticky header
+        const headerOffset = 80; 
         const buffer = 80;
         const speed = 15;
         
@@ -432,5 +467,4 @@ custom_game_html = f"""
 </html>
 """
 
-# Render the component, expanding height slightly to fit window layout
 components.html(custom_game_html, height=850, scrolling=False)
