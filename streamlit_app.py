@@ -50,7 +50,6 @@ custom_game_html = f"""
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<!-- Mobile Drag and Drop Polyfill -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
 <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
 
@@ -171,8 +170,8 @@ custom_game_html = f"""
         border-radius: 10px;
         transition: transform 0.2s;
         
-        /* REPLACE THIS URL WITH YOUR GENERATED SAND PAIL IMAGE */
-        background-image: url('YOUR_SAND_PAIL_IMAGE_URL.png');
+        /* Your Generated Sand Pail Image */
+        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/9e4e4483a31d7d24722ff853ed4c7e7ee54573b7/Bucket%20Image.png');
         background-color: rgba(255,255,255,0.5); /* Fallback */
         background-size: contain;
         background-repeat: no-repeat;
@@ -220,8 +219,8 @@ custom_game_html = f"""
         justify-content: center;
         transition: transform 0.1s;
         
-        /* REPLACE THIS URL WITH YOUR GENERATED SAND GRAIN IMAGE */
-        background-image: url('YOUR_SAND_GRAIN_IMAGE_URL.png');
+        /* Your Generated Sand Grain Image */
+        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/9e4e4483a31d7d24722ff853ed4c7e7ee54573b7/Sand%20Grain%20Image.png');
         background-color: #e2c285; /* Fallback */
         background-size: cover;
         background-repeat: no-repeat;
