@@ -48,6 +48,12 @@ custom_game_html = f"""
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- Mobile Drag and Drop Polyfill -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+<script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+
 <style>
     body, html {{ 
         margin: 0; 
@@ -55,6 +61,7 @@ custom_game_html = f"""
         height: 100%; 
         font-family: sans-serif; 
         overflow: hidden; 
+        touch-action: none; /* Prevents pull-to-refresh on mobile */
     }}
     
     #main-container {{
@@ -62,6 +69,7 @@ custom_game_html = f"""
         overflow-y: auto;
         box-sizing: border-box;
         background-color: #f4f4f9;
+        -webkit-overflow-scrolling: touch;
     }}
 
     /* Persistent Header */
@@ -70,7 +78,7 @@ custom_game_html = f"""
         top: 0;
         background: #ffffff;
         z-index: 1000;
-        padding: 15px 30px;
+        padding: 10px 15px;
         border-bottom: 2px solid #ddd;
         display: flex;
         justify-content: space-between;
@@ -79,7 +87,7 @@ custom_game_html = f"""
     }}
 
     #header-title {{
-        font-size: 32px;
+        font-size: 24px;
         font-weight: bold;
         margin: 0;
         text-align: center;
@@ -88,11 +96,11 @@ custom_game_html = f"""
     }}
 
     #score-board {{ 
-        font-size: 24px; 
+        font-size: 20px; 
         font-weight: bold; 
         margin: 0; 
         color: #e63946;
-        min-width: 120px;
+        min-width: 90px;
         text-align: right;
     }}
     
@@ -103,7 +111,7 @@ custom_game_html = f"""
         gap: 20px;
         align-items: flex-start;
         width: 100%;
-        padding: 20px;
+        padding: 15px;
         box-sizing: border-box;
     }}
     
@@ -112,6 +120,7 @@ custom_game_html = f"""
         display: flex;
         flex-direction: column;
         gap: 20px;
+        padding-bottom: 20px;
     }}
     
     .section {{
@@ -125,7 +134,7 @@ custom_game_html = f"""
         font-weight: bold;
         text-align: center;
         margin-bottom: 15px;
-        font-size: 18px;
+        font-size: 16px;
         text-transform: uppercase;
         letter-spacing: 1px;
         color: #222;
@@ -134,10 +143,10 @@ custom_game_html = f"""
     .bucket-grid {{
         display: grid; 
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-        gap: 25px 15px; /* Increased vertical gap for handle clearance */
+        gap: 15px; 
     }}
 
-    /* Color Coding - Applied to section backgrounds and inherited by buckets */
+    /* Color Coding - Applied to section backgrounds */
     .assets {{ background-color: #e3f2fd; border-color: #90caf9; }}
     .liabilities {{ background-color: #ffebee; border-color: #ef9a9a; }}
     .equity {{ background-color: #f3e5f5; border-color: #ce93d8; }}
@@ -145,126 +154,142 @@ custom_game_html = f"""
     .expenses {{ background-color: #e8f5e9; border-color: #a5d6a7; }}
     .net-income {{ background-color: #fffde7; border-color: #fff59d; }}
     
-    /* Sand Pail Bucket Styling */
+    /* Sand Pail Bucket Styling (Image Based) */
     .bucket {{
-        background-color: inherit; 
-        border: 3px solid rgba(0,0,0,0.2);
-        border-top: none;
-        border-bottom-left-radius: 20px;
-        border-bottom-right-radius: 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        transition: transform 0.2s, filter 0.2s;
+        justify-content: flex-end; /* Keeps text at the bottom */
         min-height: 140px;
-        padding: 25px 10px 10px 10px;
-        font-size: 13px;
+        padding: 10px;
+        font-size: 12px;
         font-weight: bold;
         text-align: center;
         color: #111;
-        box-shadow: inset 0 -15px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.1);
         position: relative;
-        margin-top: 25px; /* Offset to accommodate the handle */
+        border: 2px dashed transparent;
+        border-radius: 10px;
+        transition: transform 0.2s;
+        
+        /* REPLACE THIS URL WITH YOUR GENERATED SAND PAIL IMAGE */
+        background-image: url('YOUR_SAND_PAIL_IMAGE_URL.png');
+        background-color: rgba(255,255,255,0.5); /* Fallback */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
     }}
 
-    /* Pail Rim */
-    .bucket::after {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -5%;
-        width: 110%;
-        height: 15px;
-        background-color: inherit;
-        border: 3px solid rgba(0,0,0,0.2);
-        border-radius: 5px;
-        box-shadow: 0 3px 3px rgba(0,0,0,0.1);
-        box-sizing: border-box;
-    }}
-    
-    /* Pail Handle */
-    .bucket::before {{
-        content: '';
-        position: absolute;
-        top: -25px;
-        left: 10%;
-        width: 80%;
-        height: 35px;
-        border: 4px solid #777;
-        border-bottom: none;
-        border-radius: 50px 50px 0 0;
-        box-sizing: border-box;
-    }}
-    
     .bucket.drag-over {{ 
         transform: scale(1.05);
-        filter: brightness(1.05);
-    }}
-
-    .bucket.drag-over::after, .bucket.drag-over::before {{
         border-color: #e63946;
+        background-color: rgba(255,255,255,0.9);
     }}
     
     /* Card Pool Styling */
     #card-pool {{ 
         flex: 1; 
-        min-width: 320px;
+        min-width: 300px;
         display: flex; 
         flex-wrap: wrap; 
-        gap: 15px; 
+        gap: 10px; 
         justify-content: center; 
         border: 2px solid #ddd; 
         padding: 15px; 
         border-radius: 10px; 
         background-color: #ffffff;
         position: sticky;
-        top: 90px;
-        max-height: calc(100vh - 120px);
+        top: 70px;
+        max-height: calc(100vh - 90px);
         overflow-y: auto;
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }}
     
-    /* Grains of Sand Card Styling */
+    /* Grains of Sand Card Styling (Image Based) */
     .card {{
-        padding: 12px;
-        background-color: #e2c285;
-        /* SVG Noise Filter for Sand Texture */
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
-        border: none;
-        border-radius: 40% 60% 55% 45% / 50% 45% 60% 40%;
+        padding: 15px 10px;
         cursor: grab;
         width: 45%; 
-        max-width: 170px;
+        max-width: 160px;
         min-height: 80px;
         font-size: 11px;
         text-align: center;
         color: #2b1810;
         font-weight: 700;
-        box-shadow: 2px 3px 5px rgba(0,0,0,0.15), inset -2px -3px 4px rgba(0,0,0,0.1), inset 2px 2px 4px rgba(255,255,255,0.4);
-        transition: transform 0.1s, box-shadow 0.1s;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: transform 0.1s;
+        
+        /* REPLACE THIS URL WITH YOUR GENERATED SAND GRAIN IMAGE */
+        background-image: url('YOUR_SAND_GRAIN_IMAGE_URL.png');
+        background-color: #e2c285; /* Fallback */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 15px; /* Fallback */
+        box-shadow: 2px 3px 5px rgba(0,0,0,0.15); /* Fallback */
     }}
     
     .card:active {{ 
         cursor: grabbing; 
-        box-shadow: 4px 5px 8px rgba(0,0,0,0.25);
+        transform: scale(1.05);
     }}
     
-    /* Dropped Card Styling - Normalizes shape slightly to fit in the bucket */
+    /* Dropped Card Styling */
     .bucket .card {{
         width: 90%;
         min-height: auto;
         font-size: 10px;
-        padding: 6px;
+        padding: 4px;
         cursor: default;
-        margin-top: 10px;
-        box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-        border-radius: 10px;
-        background-image: none; 
+        margin-top: 5px;
+        background-image: none; /* Removes sand image when dropped in pail */
         background-color: #f5deb3;
+        border: 1px solid #c9a65f;
+        border-radius: 5px;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }}
+
+    /* Mobile Responsive Logic */
+    @media (max-width: 768px) {{
+        .layout-container {{
+            flex-direction: column;
+            padding: 10px;
+        }}
+        
+        #game-board {{
+            flex: none;
+            width: 100%;
+        }}
+        
+        #card-pool {{
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-height: 35vh; /* Takes up bottom 35% of screen on mobile */
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            top: auto;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }}
+
+        #main-container {{
+            padding-bottom: 38vh; /* Prevents bottom buckets from hiding behind the card pool */
+        }}
+
+        .card {{
+            width: 46%; /* Fits two side-by-side on mobile easily */
+            font-size: 10px;
+            padding: 10px;
+        }}
+        
+        .bucket-grid {{
+            grid-template-columns: repeat(2, 1fr); /* Forces 2 pails per row on mobile */
+        }}
     }}
 
     /* Animations */
@@ -289,7 +314,6 @@ custom_game_html = f"""
 <div id="main-container">
     
     <div id="header-container">
-        <div style="width: 120px;"></div>
         <h1 id="header-title">Accounting Bucket List</h1>
         <div id="score-board">Score: <span id="score">0</span></div>
     </div>
@@ -375,11 +399,19 @@ custom_game_html = f"""
 <audio id="snd-incorrect" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 
 <script>
+    // Initialize Mobile Drag and Drop Polyfill
+    MobileDragDrop.polyfill({{
+        holdToDrag: 150, // milliseconds a user must hold before dragging begins
+        dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+    }});
+    
+    // Required to prevent scrolling while dragging on mobile
+    window.addEventListener("touchmove", function() {{}}, {{passive: false}});
+
     let score = 0;
     const cards = document.querySelectorAll('.card');
     const buckets = document.querySelectorAll('.bucket');
     const scoreDisplay = document.getElementById('score');
-    const container = document.getElementById('main-container');
     
     const sndCorrect = document.getElementById('snd-correct');
     const sndIncorrect = document.getElementById('snd-incorrect');
@@ -408,21 +440,6 @@ custom_game_html = f"""
         draggedItem = null;
     }}
 
-    // Auto-scroll logic when dragging near top or bottom of the container
-    document.addEventListener('drag', function(e) {{
-        if (e.clientY === 0) return; // Prevent jump to top on drop
-        
-        const headerOffset = 80; 
-        const buffer = 80;
-        const speed = 15;
-        
-        if (e.clientY < (headerOffset + buffer)) {{
-            container.scrollBy(0, -speed);
-        }} else if (window.innerHeight - e.clientY < buffer) {{
-            container.scrollBy(0, speed);
-        }}
-    }});
-
     function dragOver(e) {{
         e.preventDefault();
     }}
@@ -436,9 +453,13 @@ custom_game_html = f"""
         this.classList.remove('drag-over');
     }}
 
-    function dragDrop() {{
+    function dragDrop(e) {{
+        e.preventDefault();
         this.classList.remove('drag-over');
         
+        // Safety check in case non-card items are dropped
+        if (!draggedItem) return;
+
         const expectedTarget = draggedItem.getAttribute('data-target');
         const bucketType = this.getAttribute('data-type');
 
@@ -467,4 +488,4 @@ custom_game_html = f"""
 </html>
 """
 
-components.html(custom_game_html, height=850, scrolling=False)
+components.html(custom_game_html, height=900, scrolling=False)
