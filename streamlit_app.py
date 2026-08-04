@@ -41,7 +41,7 @@ random.shuffle(card_data)
 # Generate HTML for cards
 cards_html = ""
 for i, card in enumerate(card_data):
-    cards_html += f'<div class="card" draggable="true" data-target="{card["target"]}" id="card{i}">{card["text"]}</div>\n'
+    cards_html += f'<div class="card" draggable="true" data-target="{card["target"]}" id="card{i}"><span>{card["text"]}</span></div>\n'
 
 custom_game_html = f"""
 <!DOCTYPE html>
@@ -108,7 +108,7 @@ custom_game_html = f"""
     }}
     
     #game-board {{ 
-        flex: 2;
+        flex: 1.5; /* Takes up roughly 60% of the screen */
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -133,11 +133,11 @@ custom_game_html = f"""
     
     .bucket-grid {{
         display: grid; 
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
         gap: 15px; 
     }}
 
-    /* Color Coding */
+    /* Color Coding - Applied to section backgrounds and inherited by buckets */
     .assets {{ background-color: #e3f2fd; border-color: #90caf9; }}
     .liabilities {{ background-color: #ffebee; border-color: #ef9a9a; }}
     .equity {{ background-color: #f3e5f5; border-color: #ce93d8; }}
@@ -145,41 +145,39 @@ custom_game_html = f"""
     .expenses {{ background-color: #e8f5e9; border-color: #a5d6a7; }}
     .net-income {{ background-color: #fffde7; border-color: #fff59d; }}
     
-    /* Sand Pail Bucket Styling */
+    /* Sand Pail Bucket Styling via CSS Shapes */
     .bucket {{
-        border: 2px dashed #999;
-        border-radius: 8px;
+        background-color: inherit; /* Matches the section color */
+        border: 3px solid rgba(0,0,0,0.2);
+        border-top: 14px solid rgba(0,0,0,0.4); /* Pail rim */
+        border-bottom-left-radius: 35px 20px;
+        border-bottom-right-radius: 35px 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        background-color: rgba(255, 255, 255, 0.7);
-        
-        /* Embedded Sand Pail SVG */
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 25 40 C 25 10, 75 10, 75 40' fill='none' stroke='%23555' stroke-width='4'/%3E%3Cpolygon points='28,40 72,40 60,90 40,90' fill='%23f4a261' stroke='%23333' stroke-width='3'/%3E%3Crect x='22' y='35' width='56' height='10' rx='3' fill='%23e76f51' stroke='%23333' stroke-width='3'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: center 15px;
-        background-size: 65px;
-        
-        transition: background-color 0.3s, transform 0.2s, border-color 0.2s;
+        transition: transform 0.2s, border-color 0.2s, filter 0.2s;
         min-height: 140px;
         padding: 10px;
-        padding-top: 90px; /* Pushes text below the pail graphic */
         font-size: 13px;
         font-weight: bold;
         text-align: center;
-        color: #333;
+        color: #111;
+        box-shadow: inset 0 -15px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.1);
+        position: relative;
     }}
+    
     .bucket.drag-over {{ 
-        background-color: rgba(255, 255, 255, 1); 
         border-color: #e63946; 
         border-style: solid; 
-        transform: scale(1.05); 
+        transform: scale(1.05);
+        filter: brightness(1.05);
     }}
     
     /* Card Pool Styling */
     #card-pool {{ 
-        flex: 1;
+        flex: 1; /* Takes up roughly 40% of the screen */
+        min-width: 320px;
         display: flex; 
         flex-wrap: wrap; 
         gap: 10px; 
@@ -195,33 +193,43 @@ custom_game_html = f"""
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }}
     
+    /* Grains of Sand Card Styling */
     .card {{
-        padding: 10px;
-        background-color: #fff;
-        border: 1px solid #444;
-        border-radius: 5px;
+        padding: 12px;
+        background: radial-gradient(circle at 30% 30%, #fff8e1, #e2c285);
+        border: 1px solid #c9a65f;
+        /* Asymmetric border-radius to create an organic grain/pebble shape */
+        border-radius: 30% 70% 60% 40% / 40% 50% 60% 50%;
         cursor: grab;
-        width: 100%;
-        max-width: 220px;
-        font-size: 12px;
+        width: 45%; /* Ensures two fit side-by-side easily */
+        max-width: 170px;
+        min-height: 80px;
+        font-size: 11px;
         text-align: center;
-        box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+        color: #3e2723;
+        font-weight: 600;
+        box-shadow: 3px 3px 6px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(0,0,0,0.1);
         transition: transform 0.1s, box-shadow 0.1s;
-    }}
-    .card:active {{ 
-        cursor: grabbing; 
-        box-shadow: 4px 4px 8px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }}
     
-    /* Dropped Card Styling */
+    .card:active {{ 
+        cursor: grabbing; 
+        box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+    }}
+    
+    /* Dropped Card Styling - Normalizes shape slightly to fit in the bucket */
     .bucket .card {{
-        width: 95%;
+        width: 90%;
+        min-height: auto;
         font-size: 10px;
         padding: 6px;
         cursor: default;
         margin-top: 5px;
-        box-shadow: none;
-        border-color: #999;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        border-radius: 15px; /* Softer, more uniform shape inside the bucket */
     }}
 
     /* Animations */
