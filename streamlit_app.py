@@ -60,7 +60,7 @@ custom_game_html = f"""
         height: 100%; 
         font-family: sans-serif; 
         overflow: hidden; 
-        touch-action: none; /* Prevents pull-to-refresh on mobile */
+        touch-action: none; 
     }}
     
     #main-container {{
@@ -153,35 +153,37 @@ custom_game_html = f"""
     .expenses {{ background-color: #e8f5e9; border-color: #a5d6a7; }}
     .net-income {{ background-color: #fffde7; border-color: #fff59d; }}
     
-    /* Sand Pail Bucket Styling (Image Based) */
+    /* Transparent Pail Styling */
     .bucket {{
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-end; /* Keeps text at the bottom */
+        justify-content: flex-end; 
         min-height: 140px;
         padding: 10px;
-        font-size: 12px;
-        font-weight: bold;
+        font-size: 13px;
+        font-weight: 800;
         text-align: center;
         color: #111;
         position: relative;
-        border: 2px dashed transparent;
-        border-radius: 10px;
-        transition: transform 0.2s;
         
-        /* Your Generated Sand Pail Image */
-        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/9e4e4483a31d7d24722ff853ed4c7e7ee54573b7/Bucket%20Image.png');
-        background-color: rgba(255,255,255,0.5); /* Fallback */
+        /* Removed all borders and backgrounds */
+        border: none !important;
+        background-color: transparent !important;
+        
+        transition: transform 0.2s, filter 0.2s;
+        
+        /* Updated Sand Pail Raw URL */
+        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/8bb985afef7866ffb440aee0da29e64a5ef40392/Bucket%20Image%2002.png');
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
     }}
 
     .bucket.drag-over {{ 
-        transform: scale(1.05);
-        border-color: #e63946;
-        background-color: rgba(255,255,255,0.9);
+        transform: scale(1.1);
+        /* Subtle glow instead of an outline */
+        filter: drop-shadow(0px 0px 8px #e63946);
     }}
     
     /* Card Pool Styling */
@@ -203,30 +205,37 @@ custom_game_html = f"""
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }}
     
-    /* Grains of Sand Card Styling (Image Based) */
+    /* Transparent Sand Grain Styling */
     .card {{
-        padding: 15px 10px;
+        /* Adjust padding so text stays strictly inside the grain graphic */
+        padding: 15px 20px;
         cursor: grab;
         width: 45%; 
-        max-width: 160px;
-        min-height: 80px;
+        max-width: 170px;
+        min-height: 90px;
         font-size: 11px;
         text-align: center;
-        color: #2b1810;
-        font-weight: 700;
+        color: #111;
+        font-weight: 800;
+        
+        /* Text shadow to ensure readability on the image */
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
+        
         display: flex;
         align-items: center;
         justify-content: center;
         transition: transform 0.1s;
         
-        /* Your Generated Sand Grain Image */
-        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/9e4e4483a31d7d24722ff853ed4c7e7ee54573b7/Sand%20Grain%20Image.png');
-        background-color: #e2c285; /* Fallback */
-        background-size: cover;
+        /* Removed all outlines */
+        border: none !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        
+        /* Updated Sand Grain Raw URL */
+        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/8bb985afef7866ffb440aee0da29e64a5ef40392/Sand%20Grain%20Image%2002.png');
+        background-size: 100% 100%; /* Stretches graphic slightly to contain text completely */
         background-repeat: no-repeat;
         background-position: center;
-        border-radius: 15px; /* Fallback */
-        box-shadow: 2px 3px 5px rgba(0,0,0,0.15); /* Fallback */
     }}
     
     .card:active {{ 
@@ -234,19 +243,20 @@ custom_game_html = f"""
         transform: scale(1.05);
     }}
     
-    /* Dropped Card Styling */
+    /* Dropped Card Styling - Retains sand grain appearance */
     .bucket .card {{
         width: 90%;
-        min-height: auto;
-        font-size: 10px;
-        padding: 4px;
+        min-height: 60px;
+        font-size: 9px;
+        padding: 10px;
         cursor: default;
         margin-top: 5px;
-        background-image: none; /* Removes sand image when dropped in pail */
-        background-color: #f5deb3;
-        border: 1px solid #c9a65f;
-        border-radius: 5px;
-        box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        
+        /* Keep it looking like a piece of sand, just smaller */
+        background-image: url('https://raw.githubusercontent.com/cybercrs/ACC-202-Bucket-Game/8bb985afef7866ffb440aee0da29e64a5ef40392/Sand%20Grain%20Image%2002.png');
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }}
 
     /* Mobile Responsive Logic */
@@ -266,7 +276,7 @@ custom_game_html = f"""
             bottom: 0;
             left: 0;
             width: 100%;
-            max-height: 35vh; /* Takes up bottom 35% of screen on mobile */
+            max-height: 35vh; 
             border-radius: 15px 15px 0 0;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
             z-index: 2000;
@@ -277,17 +287,17 @@ custom_game_html = f"""
         }}
 
         #main-container {{
-            padding-bottom: 38vh; /* Prevents bottom buckets from hiding behind the card pool */
+            padding-bottom: 38vh; 
         }}
 
         .card {{
-            width: 46%; /* Fits two side-by-side on mobile easily */
+            width: 46%; 
             font-size: 10px;
             padding: 10px;
         }}
         
         .bucket-grid {{
-            grid-template-columns: repeat(2, 1fr); /* Forces 2 pails per row on mobile */
+            grid-template-columns: repeat(2, 1fr); 
         }}
     }}
 
